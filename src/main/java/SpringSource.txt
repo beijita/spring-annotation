@@ -1,0 +1,60 @@
+
+Spring容器的refresh() org.springframework.context.support.AbstractApplicationContext.refresh
+一、prepareRefresh();
+    1).initPropertySources(); 初始化自定义配置属性
+    2).getEnvironment().validateRequiredProperties(); 校验必填属性
+    3).this.earlyApplicationEvents = new LinkedHashSet<ApplicationEvent>();
+        保存早期的待发布事件
+二、obtainFreshBeanFactory(); 获取bean工厂
+    1).refreshBeanFactory(); 刷新bean工厂
+        public GenericApplicationContext() {
+        	this.beanFactory = new DefaultListableBeanFactory();
+        } // 创建bean工厂
+        设置ID
+    2).getBeanFactory(); 获取已创建的bean工厂
+    3）、返回 beanFactory
+三、prepareBeanFactory(beanFactory); beanFactory的一些准备工作
+    1、添加类加载器classLoader、bean解析器、属性编辑器
+    2、添加后置处理器BeanPostProcessor【ApplicationContextAwareProcessor】
+    3。设置忽略的自动装配的接口
+    4、注册可以解析的自动装配，BeanFactory、ResourceLoader、ApplicationEventPublisher、ApplicationContext
+    5、添加后置处理器BeanPostProcessor【ApplicationListenerDetector】
+    6、添加编译时的AspectJ
+    7、注册基础组件
+        Environment、SystemProperties、SystemEnvironment
+四、	postProcessBeanFactory(beanFactory); beanFactory准备工作完成后的后置处理工作
+    1、子类通过重写这方法在BeanFactory创建并预准备完成以后做进一步的设置
+-----------------------------------BeanFactory创建准备工作完成--------------------------------------------
+五、invokeBeanFactoryPostProcessors(beanFactory); 执行beanFactory.postProcessBeanFactory
+    1、先执行 BeanDefinitionRegistryPostProcessor.postProcessBeanDefinitionRegistry(registry); 如有排序先执行排序
+    2、执行 BeanFactoryPostProcessor.postProcessBeanFactory(beanFactory)
+六、registerBeanPostProcessors(beanFactory);
+    BeanPostProcessor bean的后置处理器，拦截bean的创建过程
+    1、
+七、initMessageSource(); 初始化国际功能、消息绑定、消息解析
+    1、获取beanFactory
+    2、看容器中是否有ID为messageSource的组件，如有则获取，没有则创建并注册到容器中。
+        			beanFactory.registerSingleton(MESSAGE_SOURCE_BEAN_NAME, this.messageSource);
+八、initApplicationEventMulticaster() 初始化事件派发器
+    1、获取beanFactory
+    2、容器beanFactory中是否包含applicationEventMulticaster 组件
+        如有则复制给对应属性
+        如果没有则新建 this.applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory)
+        并注册到容器中 beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, this.applicationEventMulticaster);
+九、onRefresh() 刷新容器是其他处理逻辑
+    1。空方法，留给子类重写
+十、registerListeners()
+    1、将容器中的监听器添加到事件派发器
+    2、将beanFactory中的监听器添加到事件派发器
+    3、如果早期事件不为空，则通过事件派发器发送给监听器
+十一、finishBeanFactoryInitialization(beanFactory); 初始化剩下所有的单实例bean
+    1、获取容器中的所有bean,依次进行初始化和创建对象
+    2、获取bean的定义信息： RootBeanDefinition
+    3、如果bean是单实例的、不是抽象的、不是懒加载的
+        如果是工厂bean
+
+
+
+
+
+
